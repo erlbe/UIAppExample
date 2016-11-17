@@ -5,9 +5,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.telematica.uiappexample.connection.HttpServerConnection;
 import com.example.telematica.uiappexample.models.Libro;
+import com.example.telematica.uiappexample.presenters.MainPresenterImpl;
+import com.example.telematica.uiappexample.presenters.contracts.MainPresenter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -16,16 +20,20 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MainView{
 
     private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    private TextView loadingText;
+
+    private MainPresenter mPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        loadingText = (TextView) findViewById(R.id.loadingText);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerView);
 
@@ -37,56 +45,20 @@ public class MainActivity extends AppCompatActivity {
         mLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        AsyncTask<Void, Void, String> task = new AsyncTask<Void, Void, String>() {
-
-            @Override
-            protected void onPreExecute(){
-
-            }
-
-            @Override
-            protected String doInBackground(Void... params) {
-                String resultado = new HttpServerConnection().connectToServer("http://www.mocky.io/v2/56990dc51200009e47e25b44", 15000);
-                return resultado;
-            }
-
-            @Override
-            protected void onPostExecute(String result) {
-                if(result != null){
-                    System.out.println(result);
-
-                    // specify an adapter (see also next example)
-                    mAdapter = new UIAdapter(getLista(result));
-                    mRecyclerView.setAdapter(mAdapter);
-                }
-            }
-        };
-
-        task.execute();
+        mPresenter = new MainPresenterImpl(this, this);
+        mPresenter.addListElements(mRecyclerView);
     }
 
-    private List<Libro> getLista(String result){
-        List<Libro> listaLibros = new ArrayList<Libro>();
-        try {
-            JSONArray lista = new JSONArray(result);
-
-            int size = lista.length();
-            for(int i = 0; i < size; i++){
-                Libro libro = new Libro();
-                JSONObject objeto = lista.getJSONObject(i);
-
-                libro.setId(objeto.getInt("id"));
-                libro.setNombre(objeto.getString("nombre"));
-                libro.setEditorial(objeto.getString("editorial"));
-                libro.setGenero(objeto.getString("genero"));
-                libro.setAutor(objeto.getInt("autor"));
-
-                listaLibros.add(libro);
-            }
-            return listaLibros;
-        } catch (JSONException e) {
-            e.printStackTrace();
-            return listaLibros;
-        }
+    @Override
+    public void isLoading() {
+        loadingText.setText("Loading...");
     }
+
+    @Override
+    public void loadingDone() {
+        loadingText.setText("");
+        Toast.makeText(this, "Loading done!", Toast.LENGTH_LONG).show();
+    }
+
+
 }

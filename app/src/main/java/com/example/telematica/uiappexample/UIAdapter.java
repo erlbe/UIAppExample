@@ -14,7 +14,7 @@ import java.util.List;
  * Created by franciscocabezas on 11/20/15.
  */
 public class UIAdapter extends RecyclerView.Adapter<UIAdapter.ViewHolder> {
-    private List<Libro> mDataset;
+    public List<Libro> mDataset;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public TextView mTextView;
