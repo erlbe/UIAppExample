@@ -1,8 +1,10 @@
 package com.example.telematica.uiappexample.presenters;
 
 import android.app.Activity;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
+import android.os.SystemClock;
 import android.support.v7.widget.RecyclerView;
 
 import com.example.telematica.uiappexample.MainView;
@@ -57,14 +59,21 @@ public class MainPresenterImpl implements MainPresenter {
             @Override
             protected void onPostExecute(String result) {
                 if(result != null){
+                    // print JSON
                     System.out.println(result);
 
-                    // specify an adapter (see also next example)
+                    // get books
                     List<Libro> books = getLista(result);
-                    saveToDatabase(books);
 
+                    // save to database
+                    saveToDatabase(books);
+                    // read from database
+                    System.out.println(getAllDBEntries());
+
+                    // specify an adapter (see also next example)
                     mAdapter = new UIAdapter(books);
                     mRecyclerView.setAdapter(mAdapter);
+
                 }
                 mainView.loadingDone();
             }
@@ -111,5 +120,21 @@ public class MainPresenterImpl implements MainPresenter {
             db.endTransaction();
             db.close();
         }
+    }
+
+    private List<Libro> getAllDBEntries() {
+        SQLiteDatabase db = bookDatabase.getReadableDatabase();
+        List<Libro> entries = new ArrayList<Libro>();
+        Cursor cursor = db.rawQuery("SELECT * FROM books", null);
+
+        if(cursor.moveToFirst()){
+            do{
+                int id = cursor.getInt(0);
+                String name = cursor.getString(1);
+                entries.add(new Libro(id, name));
+            } while(cursor.moveToNext());
+        }
+        cursor.close();
+        return entries;
     }
 }

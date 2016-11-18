@@ -11,6 +11,14 @@ public class Libro {
     private String genero;
     private int autor;
 
+    public Libro(int id, String nombre) {
+        this.id = id;
+        this.nombre = nombre;
+    }
+
+    public Libro() {
+    }
+
     public void setId(int id){
         this.id = id;
     }
@@ -49,5 +57,10 @@ public class Libro {
 
     public void setAutor(int autor) {
         this.autor = autor;
+    }
+
+    @Override
+    public String toString() {
+        return "" + this.id + this.nombre;
     }
 }

@@ -10,9 +10,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class BookDatabase extends SQLiteOpenHelper {
     private static final String DB_NAME = "BookDB";
-    private static final int DB_version = 1;
+    private static final int DB_version = 3;
 
-    String sqlString = "CREATE TABLE 'books' ('id' INTEGER PRIMARY KEY, 'name' TEXT)";
+    String sqlString = "CREATE TABLE IF NOT EXISTS 'books' ('id' INTEGER PRIMARY KEY, 'name' TEXT)";
 
     public BookDatabase(Context context) {
         super(context, DB_NAME, null, DB_version);
@@ -20,12 +20,13 @@ public class BookDatabase extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        db.execSQL("DROP TABLE IF EXISTS books");
         db.execSQL(sqlString);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS 'books");
+        db.execSQL("DROP TABLE IF EXISTS books");
         onCreate(db);
     }
 }
