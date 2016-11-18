@@ -10,7 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class BookDatabase extends SQLiteOpenHelper {
     private static final String DB_NAME = "BookDB";
-    private static final int DB_version = 3;
+    private static final int DB_version = 4;
 
     String sqlString = "CREATE TABLE IF NOT EXISTS 'books' ('id' INTEGER PRIMARY KEY, 'name' TEXT)";
 
