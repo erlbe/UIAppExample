@@ -112,7 +112,7 @@ public class MainPresenterImpl implements MainPresenter {
             db.beginTransaction();
             try {
                 for (Libro book: list){
-                    db.execSQL("INSERT INTO books (id, name) VALUES ('" + book.getId() + "', '" + book.getNombre() + "')");
+                    db.execSQL("INSERT OR IGNORE INTO books (id, name) VALUES ('" + book.getId() + "', '" + book.getNombre() + "')");
                 }
             } finally {
                 db.setTransactionSuccessful();

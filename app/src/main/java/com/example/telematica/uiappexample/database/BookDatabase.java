@@ -20,7 +20,6 @@ public class BookDatabase extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("DROP TABLE IF EXISTS books");
         db.execSQL(sqlString);
     }
 
