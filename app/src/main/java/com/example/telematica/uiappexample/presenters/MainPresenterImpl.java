@@ -1,12 +1,14 @@
 package com.example.telematica.uiappexample.presenters;
 
 import android.app.Activity;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.support.v7.widget.RecyclerView;
 
 import com.example.telematica.uiappexample.MainView;
 import com.example.telematica.uiappexample.UIAdapter;
 import com.example.telematica.uiappexample.connection.HttpServerConnection;
+import com.example.telematica.uiappexample.database.BookDatabase;
 import com.example.telematica.uiappexample.models.Libro;
 import com.example.telematica.uiappexample.presenters.contracts.MainPresenter;
 
@@ -28,10 +30,12 @@ public class MainPresenterImpl implements MainPresenter {
 
     private RecyclerView.Adapter mAdapter;
 
+    private BookDatabase bookDatabase;
 
     public MainPresenterImpl(Activity activity, MainView mainView) {
         this.activity = activity;
         this.mainView = mainView;
+        this.bookDatabase = new BookDatabase(activity.getApplicationContext());
     }
 
 
@@ -56,7 +60,10 @@ public class MainPresenterImpl implements MainPresenter {
                     System.out.println(result);
 
                     // specify an adapter (see also next example)
-                    mAdapter = new UIAdapter(getLista(result));
+                    List<Libro> books = getLista(result);
+                    saveToDatabase(books);
+
+                    mAdapter = new UIAdapter(books);
                     mRecyclerView.setAdapter(mAdapter);
                 }
                 mainView.loadingDone();
@@ -87,6 +94,22 @@ public class MainPresenterImpl implements MainPresenter {
         } catch (JSONException e) {
             e.printStackTrace();
             return listaLibros;
+        }
+    }
+
+    private void saveToDatabase(List<Libro> list){
+        SQLiteDatabase db = bookDatabase.getWritableDatabase();
+        if(db != null){
+            db.beginTransaction();
+            try {
+                for (Libro book: list){
+                    db.execSQL("INSERT INTO books (id, name) VALUES ('" + book.getId() + "', '" + book.getNombre() + "')");
+                }
+            } finally {
+                db.setTransactionSuccessful();
+            }
+            db.endTransaction();
+            db.close();
         }
     }
 }
